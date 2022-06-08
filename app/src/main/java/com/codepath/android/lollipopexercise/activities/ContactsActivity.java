@@ -3,14 +3,18 @@ package com.codepath.android.lollipopexercise.activities;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.codepath.android.lollipopexercise.R;
 import com.codepath.android.lollipopexercise.adapters.ContactsAdapter;
 import com.codepath.android.lollipopexercise.models.Contact;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -19,12 +23,14 @@ public class ContactsActivity extends AppCompatActivity {
     private RecyclerView rvContacts;
     private ContactsAdapter mAdapter;
     private List<Contact> contacts;
+    private CoordinatorLayout rlMainContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
+        rlMainContent = findViewById(R.id.rlMainContent);
         // Find RecyclerView and bind to adapter
         rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
 
@@ -52,6 +58,7 @@ public class ContactsActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_contacts, menu);
+
         return true;
     }
 
@@ -63,5 +70,25 @@ public class ContactsActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         return super.onOptionsItemSelected(item);
+    }
+
+    // Define the click listener as a member
+    View.OnClickListener myOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            contacts.remove(0);
+            mAdapter.notifyItemRemoved(0);
+            rvContacts.smoothScrollToPosition(0);
+        }
+    };
+
+    public void onComposeAction(MenuItem item) {
+        Snackbar.make(rlMainContent, R.string.snackbar_text, Snackbar.LENGTH_LONG)
+                .setAction(R.string.snackbar_action, myOnClickListener)
+                .setDuration(3000)
+                .show(); // Don’t forget to show!
+        contacts.add(0, Contact.getRandomContact(ContactsActivity.this));
+        mAdapter.notifyItemInserted(0);
+        rvContacts.smoothScrollToPosition(0);
     }
 }
